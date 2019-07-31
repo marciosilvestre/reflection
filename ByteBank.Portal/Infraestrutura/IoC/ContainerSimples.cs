@@ -18,6 +18,8 @@ namespace ByteBank.Portal.Infraestrutura.IoC
             if (_mapaDeTipos.ContainsKey(tipoOrigem))
                 throw new InvalidOperationException("Tipo já mapeado");
 
+            VerificarHierarquiaOuLancarExcecao(tipoOrigem, tipoDestino);
+
             _mapaDeTipos.Add(tipoOrigem, tipoDestino);
         }
 
@@ -57,16 +59,16 @@ namespace ByteBank.Portal.Infraestrutura.IoC
             return instancia;
         }
 
-        private void VerificarHierarquiaOuLancarExcecao(Type origem, Type destino)
+        private void VerificarHierarquiaOuLancarExcecao(Type tipoOrigem, Type tipoDestino)
         {
             //verificar se destino herda ou implementa a origem
 
-            if(origem.IsInterface)
+            if(tipoOrigem.IsInterface)
             {
                 var tipoDestinoImplementaInterface =
-                    destino
+                    tipoDestino
                     .GetInterfaces()
-                    .Any(tipoInterface => tipoInterface == origem);
+                    .Any(tipoInterface => tipoInterface == tipoOrigem);
 
                 if (!tipoDestinoImplementaInterface)
                     throw new InvalidOperationException("O tipo destino não implementa a interface");
@@ -74,7 +76,7 @@ namespace ByteBank.Portal.Infraestrutura.IoC
             }
             else
             {
-                var tipoDestinoHerdaDoTipoOrigem = destino.IsSubclassOf(origem);
+                var tipoDestinoHerdaDoTipoOrigem = tipoDestino.IsSubclassOf(tipoOrigem);
 
                 if (!tipoDestinoHerdaDoTipoOrigem)
                     throw new InvalidOperationException("O tipo destino não herda do tipo de origem");
